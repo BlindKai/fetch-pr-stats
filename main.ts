@@ -1,4 +1,5 @@
 import { fetchPage } from "./fetching.ts";
+import { getPullRequestStats } from "./stats.ts";
 
 async function main() {
   const pullRequests = [];
@@ -15,4 +16,6 @@ async function main() {
 }
 
 const pullRequests = await main();
-console.log(pullRequests);
+const stats = getPullRequestStats(pullRequests);
+
+console.log(stats);
