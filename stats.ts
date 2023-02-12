@@ -69,20 +69,20 @@ function createNewUser(
       changesRequested: 0,
     },
     approveTime: {
-      min: 0,
-      max: 0,
+      min: 9999999,
+      max: -9999999,
       avg: 0,
       all: 0,
     },
     mergeTime: {
-      min: 0,
-      max: 0,
+      min: 9999999,
+      max: -9999999,
       avg: 0,
       all: 0,
     },
     commentsTime: {
-      min: 0,
-      max: 0,
+      min: 9999999,
+      max: -9999999,
       avg: 0,
       all: 0,
     },
@@ -120,7 +120,9 @@ function updateReviewUser(
   pr: MappedPullRequest,
   review: MappedReview
 ) {
-  const user = map.get(review.userId) as UserStats;
+  const user = map.get(review.userId);
+
+  if (!user) return;
 
   const time = (review.submittedAt.getTime() - pr.createdAt.getTime()) / 1000;
 

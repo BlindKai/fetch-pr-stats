@@ -9,11 +9,15 @@ const headers = {
 };
 
 export async function fetchPage(pageNumber: number) {
+  console.log("Fetching page", pageNumber);
+
   const baseUrl = `https://api.github.com/repos/${ORG}/${REPO}/pulls`;
   const querystring = `?state=all&per_page=100&page=${pageNumber}`;
 
   const response = await fetch(`${baseUrl}${querystring}`, { headers });
   const prs: Record<string, any>[] = await response.json();
+
+  if (!Array.isArray(prs)) return [];
 
   const prsReviews = await Promise.all(
     prs.map((pr) => fetchReviews(pr.number))
@@ -50,12 +54,14 @@ function mapPullRequest(
     mergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
     labels: pr.labels,
     draft: pr.draft,
-    reviews: reviews.map((r) => ({
-      userId: r.user.id,
-      user: r.user.login,
-      state: r.state,
-      submittedAt: new Date(r.submitted_at),
-    })),
+    reviews: Array.isArray(reviews)
+      ? reviews.map((r) => ({
+          userId: r.user.id,
+          user: r.user.login,
+          state: r.state,
+          submittedAt: new Date(r.submitted_at),
+        }))
+      : [],
   };
 }
 

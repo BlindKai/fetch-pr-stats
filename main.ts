@@ -10,12 +10,22 @@ async function main() {
     currentPage = await fetchPage(pageNumber);
     pullRequests.push(...currentPage);
     pageNumber++;
-  } while (currentPage.length !== 0);
+  } while (currentPage.length === 100);
 
-  return pullRequests;
+  const statsMap = getPullRequestStats(pullRequests);
+  const statsArray = Array.from(statsMap.values());
+
+  statsArray.forEach((s) => {
+    s.approveTime.avg = s.approveTime.all / s.reviews.approved;
+    s.commentsTime.avg =
+      s.commentsTime.all / (s.reviews.commented + s.reviews.changesRequested);
+    s.mergeTime.avg = s.mergeTime.all / s.prs.merged;
+  });
+
+  const encoder = new TextEncoder();
+  const data = encoder.encode(JSON.stringify(statsArray));
+
+  await Deno.writeFile(`results-${Date.now()}.json`, data);
 }
 
-const pullRequests = await main();
-const stats = getPullRequestStats(pullRequests);
-
-console.log(stats);
+await main();
