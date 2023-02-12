@@ -23,9 +23,9 @@ export async function fetchPage(pageNumber: number) {
     prs.map((pr) => fetchReviews(pr.number))
   );
 
-  const prWithReviews = prs.map((pr, i) => mapPullRequest(pr, prsReviews[i]));
+  prs.forEach((pr, i) => (pr.reviews = prsReviews[i]));
 
-  return prWithReviews;
+  return prs;
 }
 
 export async function fetchReviews(prId: number) {
@@ -37,10 +37,7 @@ export async function fetchReviews(prId: number) {
   return reviews;
 }
 
-function mapPullRequest(
-  pr: Record<string, any>,
-  reviews: Record<string, any>[]
-): MappedPullRequest {
+export function mapPullRequest(pr: Record<string, any>): MappedPullRequest {
   return {
     id: pr.id,
     url: pr.url,
@@ -54,8 +51,8 @@ function mapPullRequest(
     mergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
     labels: pr.labels,
     draft: pr.draft,
-    reviews: Array.isArray(reviews)
-      ? reviews.map((r) => ({
+    reviews: Array.isArray(pr.reviews)
+      ? pr.reviews.map((r) => ({
           userId: r.user.id,
           user: r.user.login,
           state: r.state,

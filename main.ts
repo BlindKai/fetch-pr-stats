@@ -1,7 +1,8 @@
-import { fetchPage } from "./fetching.ts";
+import { fetchPage, mapPullRequest } from "./fetching.ts";
 import { getPullRequestStats } from "./stats.ts";
 
 async function main() {
+  const encoder = new TextEncoder();
   const pullRequests = [];
   let currentPage = [];
   let pageNumber = 1;
@@ -12,7 +13,11 @@ async function main() {
     pageNumber++;
   } while (currentPage.length === 100);
 
-  const statsMap = getPullRequestStats(pullRequests);
+  const raw = encoder.encode(JSON.stringify(pullRequests));
+  await Deno.writeFile(`raw-${Date.now()}.json`, raw);
+
+  const mappedPullRequests = pullRequests.map((pr) => mapPullRequest(pr));
+  const statsMap = getPullRequestStats(mappedPullRequests);
   const statsArray = Array.from(statsMap.values());
 
   statsArray.forEach((s) => {
@@ -22,9 +27,7 @@ async function main() {
     s.mergeTime.avg = s.mergeTime.all / s.prs.merged;
   });
 
-  const encoder = new TextEncoder();
   const data = encoder.encode(JSON.stringify(statsArray));
-
   await Deno.writeFile(`results-${Date.now()}.json`, data);
 }
 
