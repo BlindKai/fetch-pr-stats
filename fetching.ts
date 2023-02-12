@@ -78,6 +78,6 @@ export type MappedPullRequest = {
 export type MappedReview = {
   userId: number;
   user: string;
-  state: string;
+  state: "CHANGES_REQUESTED" | "APPROVED" | "COMMENTED";
   submittedAt: Date;
 };
