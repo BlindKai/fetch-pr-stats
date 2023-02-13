@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:be": "cd backend && deno task dev"
+    "dev:be": "cd backend && deno task dev",
+    "dev:fe": "cd frontend && npm run dev"
   },
   "repository": {
     "type": "git",
